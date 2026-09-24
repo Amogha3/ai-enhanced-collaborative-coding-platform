@@ -1,0 +1,6 @@
+const $=s=>document.querySelector(s);let room='demo-room',timer;const code=$('#code');
+async function join(){room=$('#room').value.trim()||'demo-room';const r=await fetch('/api/room',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room})});const d=await r.json();code.value=d.code;$('#presence').textContent='● 1 online'}
+async function save(){await fetch('/api/room/'+encodeURIComponent(room),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code.value,language:$('#language').value})})}
+code.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(save,500)});$('#join').onclick=join;
+$('#run').onclick=async()=>{const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code.value,language:$('#language').value})});const d=await r.json();$('#output').textContent=d.output;$('#output').style.color=d.status==='error'?'#ff9c9c':'#b8f7d0'};
+document.querySelectorAll('[data-action]').forEach(b=>b.onclick=async()=>{const r=await fetch('/api/ai-assist',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code.value,action:b.dataset.action})});$('#answer').textContent=(await r.json()).answer});join();
